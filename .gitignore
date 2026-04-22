@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+logs/
+run/
+data/history/
+data/board_history/

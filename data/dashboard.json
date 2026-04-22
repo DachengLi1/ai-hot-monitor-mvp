@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-01-15T17:30:00+00:00",
+  "next_fetch_at": "2026-01-15T18:00:00+00:00",
+  "fetch_interval_minutes": 30,
+  "summary": "Demo data only — sample AI / policy / community items for the public repository.",
+  "top_items": [
+    {
+      "id": "demo-1",
+      "title": "National AI safety institute opens public evaluations",
+      "url": "https://example.com/ai-safety-demo",
+      "summary": "Sample policy item for demo use.",
+      "published_at": "2026-01-15T16:00:00+00:00",
+      "source_id": "demo-policy",
+      "source_name": "Demo Policy Feed",
+      "source_type": "rss",
+      "source_type_label": "RSS",
+      "source_category": "policy",
+      "topic": "policy_regulation",
+      "topic_label": "监管 / 政策",
+      "regulatory_score": 92,
+      "entities": [
+        "demo-gov"
+      ],
+      "community_score": 0,
+      "community_comments": 0,
+      "hot_score": 88,
+      "writer_value_score": 90,
+      "writer_angle": "Explain what changed, who is affected, and why it matters."
+    },
+    {
+      "id": "demo-2",
+      "title": "Open-source agent benchmark adds reproducible task packs",
+      "url": "https://example.com/benchmark-demo",
+      "summary": "Sample tooling item for demo use.",
+      "published_at": "2026-01-15T15:00:00+00:00",
+      "source_id": "demo-dev",
+      "source_name": "Demo Dev Feed",
+      "source_type": "rss",
+      "source_type_label": "RSS",
+      "source_category": "ai",
+      "topic": "infra_tools",
+      "topic_label": "平台 / 工具链",
+      "regulatory_score": 18,
+      "entities": [
+        "demo-benchmark"
+      ],
+      "community_score": 0,
+      "community_comments": 0,
+      "hot_score": 73,
+      "writer_value_score": 75,
+      "writer_angle": "Great for a trend piece about infrastructure and developer workflows."
+    }
+  ],
+  "top_events": [
+    {
+      "event_id": "evt-demo-1",
+      "title": "Public AI evaluations and new guardrails",
+      "topic": "policy_regulation",
+      "topic_label": "监管 / 政策",
+      "item_count": 4,
+      "regulatory_score": 92,
+      "writer_angle": "Policy explainer with practical implications."
+    }
+  ],
+  "regulation_watch": [
+    {
+      "event_id": "evt-demo-1",
+      "title": "Public AI evaluations and new guardrails",
+      "regulatory_score": 92,
+      "topic_label": "监管 / 政策"
+    }
+  ],
+  "topic_clusters": [
+    {
+      "topic": "policy_regulation",
+      "topic_label": "监管 / 政策",
+      "count": 4
+    },
+    {
+      "topic": "infra_tools",
+      "topic_label": "平台 / 工具链",
+      "count": 3
+    }
+  ],
+  "writing_angles": [
+    "Policy explainer: who changed the rules and who needs to act now",
+    "Infra trend: why reproducibility is becoming table stakes"
+  ],
+  "source_status": [
+    {
+      "source_id": "demo-policy",
+      "source_name": "Demo Policy Feed",
+      "ok": true,
+      "items": 4,
+      "last_ok_at": "2026-01-15T17:30:00+00:00"
+    },
+    {
+      "source_id": "demo-dev",
+      "source_name": "Demo Dev Feed",
+      "ok": true,
+      "items": 3,
+      "last_ok_at": "2026-01-15T17:30:00+00:00"
+    }
+  ],
+  "stats": {
+    "total_items": 7,
+    "total_events": 2,
+    "regulatory_items": 4,
+    "community_items": 0,
+    "official_items": 4,
+    "sources_ok": 2,
+    "sources_total": 2
+  }
+}

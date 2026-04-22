@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-01-15T17:30:00+00:00",
+  "started_at": "2026-01-15T17:29:45+00:00",
+  "finished_at": "2026-01-15T17:30:00+00:00",
+  "interval_minutes": 30,
+  "sources": [
+    {
+      "source_id": "demo-policy",
+      "source_name": "Demo Policy Feed",
+      "ok": true,
+      "items": 4,
+      "last_ok_at": "2026-01-15T17:30:00+00:00"
+    },
+    {
+      "source_id": "demo-dev",
+      "source_name": "Demo Dev Feed",
+      "ok": true,
+      "items": 3,
+      "last_ok_at": "2026-01-15T17:30:00+00:00"
+    }
+  ]
+}

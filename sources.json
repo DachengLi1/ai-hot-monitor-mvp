@@ -1,0 +1,339 @@
+[
+  {
+    "id": "openai-news",
+    "name": "OpenAI News",
+    "type": "rss",
+    "url": "https://openai.com/news/rss.xml",
+    "category": "official",
+    "weight": 1.35,
+    "item_limit": 12,
+    "max_age_days": 45
+  },
+  {
+    "id": "anthropic-news",
+    "name": "Anthropic News",
+    "type": "html",
+    "url": "https://www.anthropic.com/news",
+    "category": "official",
+    "weight": 1.35,
+    "parser": "anthropic_news",
+    "item_limit": 12,
+    "max_age_days": 45
+  },
+  {
+    "id": "google-ai-blog",
+    "name": "Google AI Blog",
+    "type": "rss",
+    "url": "https://blog.google/technology/ai/rss/",
+    "category": "official",
+    "weight": 1.25,
+    "item_limit": 10,
+    "max_age_days": 45
+  },
+  {
+    "id": "google-deepmind",
+    "name": "Google DeepMind",
+    "type": "rss",
+    "url": "https://blog.google/technology/google-deepmind/rss/",
+    "category": "official",
+    "weight": 1.3,
+    "item_limit": 10,
+    "max_age_days": 45
+  },
+  {
+    "id": "google-research",
+    "name": "Google Research",
+    "type": "rss",
+    "url": "https://research.google/blog/rss/",
+    "category": "official",
+    "weight": 1.2,
+    "item_limit": 10,
+    "max_age_days": 60
+  },
+  {
+    "id": "meta-engineering",
+    "name": "Meta Engineering",
+    "type": "rss",
+    "url": "https://engineering.fb.com/feed/",
+    "category": "official",
+    "weight": 1.15,
+    "item_limit": 8,
+    "max_age_days": 60
+  },
+  {
+    "id": "aws-ml-blog",
+    "name": "AWS Machine Learning Blog",
+    "type": "rss",
+    "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+    "category": "official",
+    "weight": 1.15,
+    "item_limit": 10,
+    "max_age_days": 30
+  },
+  {
+    "id": "huggingface-blog",
+    "name": "Hugging Face Blog",
+    "type": "rss",
+    "url": "https://huggingface.co/blog/feed.xml",
+    "category": "official",
+    "weight": 1.2,
+    "item_limit": 10,
+    "max_age_days": 30
+  },
+  {
+    "id": "a16z-news",
+    "name": "a16z News & Content",
+    "type": "html",
+    "url": "https://a16z.com/news-content/",
+    "category": "ecosystem",
+    "weight": 1.15,
+    "parser": "a16z_news",
+    "item_limit": 8,
+    "max_age_days": 45
+  },
+  {
+    "id": "yc-blog",
+    "name": "Y Combinator Blog",
+    "type": "rss",
+    "url": "https://www.ycombinator.com/blog/feed",
+    "category": "ecosystem",
+    "weight": 1.15,
+    "item_limit": 8,
+    "max_age_days": 45
+  },
+  {
+    "id": "techcrunch-startups",
+    "name": "TechCrunch Startups",
+    "type": "rss",
+    "url": "https://techcrunch.com/category/startups/feed/",
+    "category": "ecosystem",
+    "weight": 1.05,
+    "item_limit": 10,
+    "max_age_days": 14
+  },
+  {
+    "id": "mit-tech-review-ai",
+    "name": "MIT Technology Review AI",
+    "type": "rss",
+    "url": "https://www.technologyreview.com/feed/",
+    "category": "ai",
+    "weight": 1.25,
+    "item_limit": 10,
+    "max_age_days": 21
+  },
+  {
+    "id": "ieee-spectrum-ai",
+    "name": "IEEE Spectrum AI",
+    "type": "rss",
+    "url": "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss",
+    "category": "ai",
+    "weight": 1.1,
+    "item_limit": 10,
+    "max_age_days": 21
+  },
+  {
+    "id": "techcrunch-ai",
+    "name": "TechCrunch AI",
+    "type": "rss",
+    "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+    "category": "ai",
+    "weight": 1.2,
+    "item_limit": 10,
+    "max_age_days": 14
+  },
+  {
+    "id": "ars-technica-techlab",
+    "name": "Ars Technica Tech Lab",
+    "type": "rss",
+    "url": "https://feeds.arstechnica.com/arstechnica/technology-lab?format=xml",
+    "category": "ai",
+    "weight": 1.0,
+    "item_limit": 8,
+    "max_age_days": 14
+  },
+  {
+    "id": "nist-news",
+    "name": "NIST News",
+    "type": "rss",
+    "url": "https://www.nist.gov/news-events/news/rss.xml",
+    "category": "regulation",
+    "weight": 1.15,
+    "item_limit": 10,
+    "max_age_days": 45
+  },
+  {
+    "id": "eu-commission-press",
+    "name": "EU Commission Press",
+    "type": "rss",
+    "url": "https://ec.europa.eu/commission/presscorner/api/rss?language=en",
+    "category": "regulation",
+    "weight": 1.2,
+    "item_limit": 10,
+    "max_age_days": 45
+  },
+  {
+    "id": "the-verge-policy",
+    "name": "The Verge Policy",
+    "type": "rss",
+    "url": "https://www.theverge.com/rss/policy/index.xml",
+    "category": "regulation",
+    "weight": 1.2,
+    "item_limit": 8,
+    "max_age_days": 21
+  },
+  {
+    "id": "hacker-news-top",
+    "name": "Hacker News Top",
+    "type": "hn",
+    "url": "https://hacker-news.firebaseio.com/v0/topstories.json",
+    "category": "community",
+    "weight": 1.35,
+    "limit": 50,
+    "item_limit": 24,
+    "max_age_days": 7
+  },
+  {
+    "id": "datadog-featured-blog",
+    "name": "Datadog Engineering Feature",
+    "type": "html",
+    "url": "https://www.datadoghq.com/blog/engineering/self-optimizing-system/",
+    "category": "ecosystem",
+    "weight": 1.45,
+    "priority_boost": 18,
+    "parser": "single_article_meta",
+    "item_limit": 1,
+    "max_age_days": 365
+  },
+  {
+    "id": "datadog-blog",
+    "name": "Datadog Blog",
+    "type": "rss",
+    "url": "https://www.datadoghq.com/blog/index.xml",
+    "category": "ecosystem",
+    "weight": 1.2,
+    "item_limit": 10,
+    "max_age_days": 120
+  },
+  {
+    "id": "databricks-blog",
+    "name": "Databricks Blog",
+    "type": "rss",
+    "url": "https://www.databricks.com/feed",
+    "category": "ecosystem",
+    "weight": 1.25,
+    "item_limit": 10,
+    "max_age_days": 90
+  },
+  {
+    "id": "anyscale-blog",
+    "name": "Anyscale Blog",
+    "type": "html",
+    "url": "https://www.anyscale.com/blog",
+    "category": "ecosystem",
+    "weight": 1.25,
+    "parser": "company_blog_listing",
+    "item_limit": 8,
+    "max_age_days": 120
+  },
+  {
+    "id": "together-ai-blog",
+    "name": "Together AI Blog",
+    "type": "rss",
+    "url": "https://www.together.ai/blog/rss.xml",
+    "category": "ecosystem",
+    "weight": 1.15,
+    "item_limit": 8,
+    "max_age_days": 90
+  },
+  {
+    "id": "physical-intelligence-watch",
+    "name": "Physical Intelligence Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=%22Physical%20Intelligence%22%20AI%20robotics",
+    "category": "ecosystem",
+    "weight": 1.18,
+    "priority_boost": 12,
+    "item_limit": 6,
+    "max_age_days": 90
+  },
+  {
+    "id": "andrew-karpathy-watch",
+    "name": "Andrew Karpathy Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Andrew%20Karpathy%20AI",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 6,
+    "max_age_days": 45
+  },
+  {
+    "id": "fei-fei-li-watch",
+    "name": "Fei-Fei Li Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Fei-Fei%20Li%20AI",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 6,
+    "max_age_days": 45
+  },
+  {
+    "id": "yann-lecun-watch",
+    "name": "Yann LeCun Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Yann%20LeCun%20talk",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 6,
+    "max_age_days": 45
+  },
+  {
+    "id": "demis-hassabis-watch",
+    "name": "Demis Hassabis Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Demis%20Hassabis%20interview",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 6,
+    "max_age_days": 45
+  },
+  {
+    "id": "jensen-huang-watch",
+    "name": "Jensen Huang Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Jensen%20Huang%20interview%20OR%20podcast%20OR%20keynote%20OR%20talk%20OR%20post",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 10,
+    "max_age_days": 45
+  },
+  {
+    "id": "sam-altman-watch",
+    "name": "Sam Altman Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Sam%20Altman%20AI",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 6,
+    "max_age_days": 45
+  },
+  {
+    "id": "dario-amodei-watch",
+    "name": "Dario Amodei Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Dario%20Amodei%20AI",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 6,
+    "max_age_days": 45
+  },
+  {
+    "id": "mustafa-suleyman-watch",
+    "name": "Mustafa Suleyman Watch",
+    "type": "rss",
+    "url": "https://news.google.com/rss/search?q=Mustafa%20Suleyman%20AI",
+    "category": "voices",
+    "weight": 1.18,
+    "item_limit": 6,
+    "max_age_days": 45
+  }
+]

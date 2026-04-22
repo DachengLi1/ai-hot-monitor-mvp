@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Event Stream</title>
+  <style>
+    :root {
+      --bg: #f7f3ec;
+      --paper: #fffdf8;
+      --card: rgba(255, 255, 255, 0.92);
+      --card-strong: #ffffff;
+      --line: #eadfce;
+      --line-strong: #dccdb7;
+      --text: #2f2b27;
+      --muted: #7e7569;
+      --pink: #ec6aa7;
+      --pink-soft: #fff1f7;
+      --blue: #5ca8e8;
+      --blue-soft: #eef7ff;
+      --green: #4fa77a;
+      --green-soft: #eefaf3;
+      --amber: #d69a2d;
+      --amber-soft: #fff7e8;
+      --purple: #8a73d6;
+      --purple-soft: #f4f0ff;
+      --shadow: 0 16px 42px rgba(114, 90, 63, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, #fff6fb 0%, rgba(255,246,251,0) 34%),
+        radial-gradient(circle at top right, #eef8ff 0%, rgba(238,248,255,0) 32%),
+        linear-gradient(180deg, #fbf8f2 0%, #f7f3ec 100%);
+    }
+
+    .shell {
+      max-width: 1760px;
+      margin: 0 auto;
+      padding: 24px 20px 56px;
+    }
+
+    .hero,
+    .panel,
+    .timeline-card,
+    .source-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 26px;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(236,106,167,0.12), rgba(236,106,167,0) 28%),
+        radial-gradient(circle at 88% 14%, rgba(92,168,232,0.14), rgba(92,168,232,0) 26%),
+        var(--card-strong);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -50px -60px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: rgba(138,115,214,0.08);
+      filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #fff6fb;
+      color: #b13b72;
+      border: 1px solid #f6c7dc;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 14px 0 0;
+      font-size: 34px;
+      line-height: 1.08;
+      font-weight: 860;
+      letter-spacing: -0.045em;
+    }
+
+    .sub {
+      margin-top: 12px;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .meta,
+    .history-row,
+    .stat-row,
+    .legend-row,
+    .badge-row,
+    .source-badges,
+    .mini-source-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .meta {
+      margin-top: 18px;
+    }
+
+    .history-row {
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .history-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-right: 2px;
+    }
+
+    .history-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.86);
+      color: var(--muted);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .history-btn.active {
+      background: var(--pink-soft);
+      border-color: #f3c4da;
+      color: #b6467d;
+    }
+
+    .pill,
+    .legend-pill,
+    .badge,
+    .source-badge,
+    .mini-source {
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.86);
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+    }
+
+    .stat:nth-child(1) { background: var(--pink-soft); }
+    .stat:nth-child(2) { background: var(--blue-soft); }
+    .stat:nth-child(3) { background: var(--green-soft); }
+    .stat:nth-child(4) { background: var(--amber-soft); }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin: 26px 0 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+
+    .section-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      text-align: right;
+      max-width: 430px;
+    }
+
+    .legend-row {
+      margin-top: 12px;
+    }
+
+    .legend-pill {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(255,255,255,0.76);
+    }
+
+    .legend-pill.model { background: #eef7ff; color: #3973b1; }
+    .legend-pill.policy { background: #fff7e8; color: #a77013; }
+    .legend-pill.tools { background: #eefaf3; color: #2f7c57; }
+    .legend-pill.research { background: #f4f0ff; color: #6d56b6; }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .timeline-card {
+      position: relative;
+      padding: 16px 16px 15px;
+      background: var(--card-strong);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      min-height: 100%;
+    }
+
+    .timeline-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 46px rgba(114, 90, 63, 0.14);
+    }
+
+    .timeline-card::before {
+      content: "";
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid var(--blue);
+      box-shadow: 0 0 0 4px rgba(92,168,232,0.10);
+    }
+
+    .timeline-card.topic-model_release::before { border-color: var(--pink); box-shadow: 0 0 0 5px rgba(236,106,167,0.14); }
+    .timeline-card.topic-policy_regulation::before { border-color: var(--amber); box-shadow: 0 0 0 5px rgba(214,154,45,0.14); }
+    .timeline-card.topic-infra_tools::before { border-color: var(--green); box-shadow: 0 0 0 5px rgba(79,167,122,0.14); }
+    .timeline-card.topic-research::before { border-color: var(--purple); box-shadow: 0 0 0 5px rgba(138,115,214,0.14); }
+
+    .timeline-card.topic-model_release { border-left: 6px solid #f5bfd7; }
+    .timeline-card.topic-policy_regulation { border-left: 6px solid #f3d59a; }
+    .timeline-card.topic-infra_tools { border-left: 6px solid #b9e6cf; }
+    .timeline-card.topic-research { border-left: 6px solid #d8ccff; }
+    .timeline-card.topic-general { border-left: 6px solid #dbe4ef; }
+
+    .time-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .time-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      border: 1px solid #cae4fb;
+      color: #3d78b8;
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+    }
+
+    .date-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .event-title {
+      margin: 0 0 8px;
+      font-size: 19px;
+      line-height: 1.42;
+      font-weight: 820;
+      letter-spacing: -0.02em;
+    }
+
+    .event-title a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .event-title a:hover {
+      color: #7a4cb2;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border: 1px solid transparent;
+    }
+
+    .badge.topic { background: var(--blue-soft); color: #3470b0; border-color: #cfe3fa; }
+    .badge.hot { background: var(--pink-soft); color: #b6467d; border-color: #f3c4da; }
+    .badge.reg { background: var(--amber-soft); color: #a77013; border-color: #f3dfb1; }
+    .badge.count { background: var(--green-soft); color: #347553; border-color: #c6e7d3; }
+
+    .event-main {
+      margin-top: 12px;
+    }
+
+    .summary-col,
+    .sources-col {
+      min-width: 0;
+    }
+
+    .event-summary {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+      margin: 8px 0 0;
+    }
+
+    .summary-label,
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .summary-label {
+      background: #f3ecff;
+      border: 1px solid #e1d5ff;
+      color: #7157bc;
+    }
+
+    .label {
+      background: #eef7ff;
+      border: 1px solid #cfe3fa;
+      color: #3470b0;
+      margin-right: 8px;
+    }
+
+    .event-source-note {
+      margin-top: 10px;
+      color: #8b7b67;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .sources-col {
+      margin-top: 12px;
+    }
+
+    .source-badges {
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .source-badge,
+    .mini-source {
+      padding: 6px 10px;
+      background: #ffffff;
+      border: 1px solid #ead9ba;
+      color: #7d6849;
+    }
+
+    .focus-badges,
+    .focus-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .focus-badges {
+      margin-top: 10px;
+    }
+
+    .focus-tag,
+    .focus-group {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      border: 1px solid #e6d5ff;
+      background: #f7f1ff;
+      color: #7050b8;
+    }
+
+    .focus-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .focus-card {
+      padding: 14px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 12px 30px rgba(114, 90, 63, 0.08);
+    }
+
+    .focus-card-title {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.5;
+      font-weight: 810;
+    }
+
+    .focus-card-title a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .focus-card-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .focus-card-summary {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .tiny {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .panel {
+      padding: 16px;
+      margin-top: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,251,245,0.94));
+    }
+
+    .source-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .source-card {
+      padding: 13px 14px;
+      background: rgba(255,255,255,0.88);
+    }
+
+    .source-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .source-name {
+      font-weight: 780;
+      font-size: 14px;
+    }
+
+    .status-ok { color: var(--green); }
+    .status-fail { color: #d55d5d; }
+
+    .empty {
+      color: var(--muted);
+      padding: 18px 0;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1600px) {
+      .timeline {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .source-list,
+      .focus-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 1280px) {
+      .timeline {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .source-list,
+      .focus-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .stats-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .source-list,
+      .focus-grid { grid-template-columns: 1fr; }
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell { padding: 16px 12px 40px; }
+      .title { font-size: 28px; }
+      .section-head { display: block; }
+      .section-note { text-align: left; margin-top: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">AI event stream · brighter view</div>
+      <h1 class="title">按时间展开的高质量 AI 事件流</h1>
+      <div class="sub" id="summary">正在整理更亮、更轻、更好扫读的事件流…</div>
+      <div class="meta">
+        <div class="pill" id="generatedAt">最近更新：-</div>
+        <div class="pill" id="nextFetchAt">下次抓取：-</div>
+        <div class="pill" id="eventCount">事件数：-</div>
+        <div class="pill" id="sourceCount">来源数：-</div>
+        <div class="pill" id="viewingDate">查看日期：-</div>
+      </div>
+      <div class="history-row">
+        <div class="history-label">Daily snapshots</div>
+        <div class="meta" id="historyChips" style="margin-top:0;"></div>
+      </div>
+      <div class="stats-strip">
+        <div class="stat">
+          <div class="stat-label">最新时间点</div>
+          <div class="stat-value" id="latestTime">-</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">模型 / 产品事件</div>
+          <div class="stat-value" id="modelCount">-</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">监管 / 政策事件</div>
+          <div class="stat-value" id="policyCount">-</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">多源验证事件</div>
+          <div class="stat-value" id="multiSourceCount">-</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head" style="margin:0 0 6px;">
+        <div>
+          <h2 class="section-title">Focus watch</h2>
+          <div class="section-note" style="text-align:left; max-width:none;">把你指定的公司博客和名人 talk / 访谈单独拎出来，刷新时优先扫这一块。</div>
+        </div>
+      </div>
+      <div class="focus-strip" id="trackedFocus"></div>
+      <div class="focus-grid" id="focusWatch"></div>
+    </section>
+
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Event timeline</h2>
+        <div class="legend-row">
+          <span class="legend-pill model">模型 / 发布</span>
+          <span class="legend-pill tools">工具 / 平台</span>
+          <span class="legend-pill policy">监管 / 政策</span>
+          <span class="legend-pill research">研究 / 分析</span>
+        </div>
+      </div>
+      <div class="section-note">新的事件排在最上面。每张卡片下面直接列出我 retrieve 到的 sources，让你快速判断信号质量。</div>
+    </div>
+    <section class="timeline" id="eventStream"></section>
+
+    <section class="panel">
+      <div class="section-head" style="margin:0 0 6px;">
+        <h2 class="section-title">Retrieval sources</h2>
+        <div class="section-note">这里维护当前使用中的 source 列表，你能直接看到这一轮从哪些地方拿了信息。</div>
+      </div>
+      <div class="source-list" id="sources"></div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ai-hot-monitor-selected-date-v1';
+    let selectedDate = localStorage.getItem(STORAGE_KEY) || getTodayISO();
+    let historyDays = [];
+
+    function getTodayISO() {
+      const now = new Date();
+      const tzOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+      return new Date(now.getTime() - tzOffsetMs).toISOString().slice(0, 10);
+    }
+
+    function fmtDate(value) {
+      if (!value) return '-';
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? value : d.toLocaleString('zh-CN');
+    }
+
+    function fmtTime(value) {
+      if (!value) return '--:--';
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? value : d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function fmtDay(value) {
+      if (!value) return '-';
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short' });
+    }
+
+    function escapeHtml(text) {
+      return String(text || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function topicClass(topic) {
+      return `topic-${String(topic || 'general').replaceAll(/[^a-z0-9_-]/gi, '-')}`;
+    }
+
+    function timeValue(item) {
+      const raw = item?.latest_published_at || item?.published_at || item?.generated_at || '';
+      const ts = raw ? new Date(raw).getTime() : 0;
+      return Number.isNaN(ts) ? 0 : ts;
+    }
+
+    function sortByTimeDesc(items) {
+      return [...(items || [])].sort((a, b) => timeValue(b) - timeValue(a));
+    }
+
+    function renderHistory(history) {
+      historyDays = history || [];
+      const el = document.getElementById('historyChips');
+      if (!historyDays.length) {
+        el.innerHTML = '<span class="pill">还没有 daily snapshot</span>';
+        return;
+      }
+      el.innerHTML = historyDays.slice(0, 14).map(item => {
+        const active = item.date === selectedDate ? 'active' : '';
+        const label = `${item.date}${item.total_events != null ? ` · ${item.total_events} events` : ''}`;
+        return `<button class="history-btn ${active}" data-date="${escapeHtml(item.date)}">${escapeHtml(label)}</button>`;
+      }).join('');
+    }
+
+    function renderEvents(events) {
+      const el = document.getElementById('eventStream');
+      const orderedEvents = sortByTimeDesc(events);
+      if (!orderedEvents.length) {
+        el.innerHTML = '<div class="empty">当前还没有可显示的高质量事件。</div>';
+        return;
+      }
+      el.innerHTML = orderedEvents.map(event => `
+        <article class="timeline-card ${escapeHtml(topicClass(event.topic))}">
+          <div class="time-row">
+            <span class="time-pill">${escapeHtml(fmtTime(event.latest_published_at))}</span>
+            <span class="date-label">${escapeHtml(fmtDay(event.latest_published_at))}</span>
+          </div>
+          <h3 class="event-title"><a href="${escapeHtml(event.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(event.title)}</a></h3>
+          <div class="badge-row">
+            <span class="badge topic">${escapeHtml(event.topic_label)}</span>
+            <span class="badge hot">Hot ${escapeHtml(event.hot_score)}</span>
+            <span class="badge reg">Reg ${escapeHtml(event.regulatory_score)}</span>
+            <span class="badge count">${escapeHtml(event.item_count)} signals</span>
+            <span class="badge count">${escapeHtml(event.source_count)} sources</span>
+          </div>
+          ${event.focus_matches && event.focus_matches.length ? `
+            <div class="focus-badges">
+              ${event.focus_matches.map(name => `<span class="focus-tag">${escapeHtml(name)}</span>`).join('')}
+            </div>
+          ` : ''}
+          <div class="event-main">
+            <div class="summary-col">
+              <div class="summary-label">content summary</div>
+              <div class="event-summary">${escapeHtml(event.summary || '暂无事件摘要')}</div>
+              <div class="event-source-note">${escapeHtml(event.source_note || '')}</div>
+            </div>
+            <div class="sources-col">
+              <div class="label">sources</div>
+              <div class="source-badges">
+                ${(event.source_names || []).map(name => `<span class="source-badge">${escapeHtml(name)}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderSources(sources) {
+      const el = document.getElementById('sources');
+      if (!sources || !sources.length) {
+        el.innerHTML = '<div class="empty">暂无 retrieval source。</div>';
+        return;
+      }
+      el.innerHTML = sources.map(source => `
+        <article class="source-card">
+          <div class="source-head">
+            <div class="source-name">${escapeHtml(source.source_name)}</div>
+            <div class="${source.ok ? 'status-ok' : 'status-fail'}">${source.ok ? 'OK' : 'FAIL'}</div>
+          </div>
+          <div class="tiny">类型：${escapeHtml(source.source_type)} · 分类：${escapeHtml(source.source_category)}</div>
+          <div class="tiny">本轮抓到 ${escapeHtml(source.items)} 条 · 耗时 ${escapeHtml(source.duration_ms)} ms</div>
+          <div class="tiny">检查时间：${escapeHtml(fmtDate(source.checked_at))}</div>
+          <div class="tiny">${escapeHtml(source.error || '无错误')}</div>
+        </article>
+      `).join('');
+    }
+
+    function renderTrackedFocus(trackedFocus) {
+      const el = document.getElementById('trackedFocus');
+      const companies = (trackedFocus && trackedFocus.companies) || [];
+      const voices = (trackedFocus && trackedFocus.voices) || [];
+      const chips = [
+        ...companies.map(name => `公司 · ${name}`),
+        ...voices.map(name => `Talk · ${name}`),
+      ];
+      el.innerHTML = chips.map(name => `<span class="focus-group">${escapeHtml(name)}</span>`).join('');
+    }
+
+    function renderFocusWatch(items) {
+      const el = document.getElementById('focusWatch');
+      const orderedItems = sortByTimeDesc(items);
+      if (!orderedItems.length) {
+        el.innerHTML = '<div class="empty">当前还没有命中重点关注对象的条目。</div>';
+        return;
+      }
+      el.innerHTML = orderedItems.map(item => `
+        <article class="focus-card">
+          <div class="focus-badges">
+            ${(item.focus_matches || []).map(name => `<span class="focus-tag">${escapeHtml(name)}</span>`).join('')}
+          </div>
+          <h3 class="focus-card-title"><a href="${escapeHtml(item.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(item.title)}</a></h3>
+          <div class="focus-card-meta">${escapeHtml(item.source_name || '-')} · ${escapeHtml(fmtDate(item.published_at || item.latest_published_at || ''))}</div>
+          <div class="focus-card-summary">${escapeHtml(item.summary || '暂无摘要')}</div>
+        </article>
+      `).join('');
+    }
+
+    function updateStats(stream, sources) {
+      const orderedStream = sortByTimeDesc(stream);
+      document.getElementById('eventCount').textContent = `事件数：${orderedStream.length}`;
+      document.getElementById('sourceCount').textContent = `来源数：${sources.length}`;
+      document.getElementById('latestTime').textContent = orderedStream.length ? fmtTime(orderedStream[0].latest_published_at) : '-';
+      document.getElementById('modelCount').textContent = orderedStream.filter(item => ['model_release', 'applications', 'infra_tools'].includes(item.topic)).length;
+      document.getElementById('policyCount').textContent = orderedStream.filter(item => item.topic === 'policy_regulation').length;
+      document.getElementById('multiSourceCount').textContent = orderedStream.filter(item => (item.source_count || 0) >= 2).length;
+    }
+
+    async function loadHistory() {
+      try {
+        const res = await fetch(`/api/history?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('history load failed');
+        const data = await res.json();
+        renderHistory(data.history || []);
+      } catch {
+        renderHistory([]);
+      }
+    }
+
+    async function loadDashboard(date = selectedDate) {
+      const isToday = date === getTodayISO();
+      const url = isToday
+        ? `/api/dashboard?t=${Date.now()}`
+        : `/api/dashboard?date=${encodeURIComponent(date)}&t=${Date.now()}`;
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('load failed');
+        const data = await res.json();
+        const stream = data.event_stream || data.top_events || [];
+        const sources = data.source_status || [];
+        document.getElementById('summary').textContent = data.summary || '暂无摘要';
+        document.getElementById('generatedAt').textContent = `最近更新：${fmtDate(data.generated_at)}`;
+        document.getElementById('nextFetchAt').textContent = isToday
+          ? `下次抓取：${fmtDate(data.next_fetch_at)}`
+          : '下次抓取：历史快照';
+        document.getElementById('viewingDate').textContent = `查看日期：${date}`;
+        updateStats(stream, sources);
+        renderTrackedFocus(data.tracked_focus || {});
+        renderFocusWatch(data.focus_watch || []);
+        renderEvents(stream);
+        renderSources(sources);
+        selectedDate = date;
+        localStorage.setItem(STORAGE_KEY, selectedDate);
+        renderHistory(historyDays);
+      } catch (error) {
+        document.getElementById('summary').textContent = `加载 ${date} 失败，请先运行抓取或稍后再试。`;
+      }
+    }
+
+    document.getElementById('historyChips').addEventListener('click', event => {
+      const button = event.target.closest('[data-date]');
+      if (!button) return;
+      loadDashboard(button.dataset.date);
+    });
+
+    async function refreshView() {
+      await loadHistory();
+      await loadDashboard(selectedDate);
+    }
+
+    refreshView();
+    setInterval(refreshView, 60000);
+  </script>
+</body>
+</html>
