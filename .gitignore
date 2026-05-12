@@ -4,3 +4,5 @@ logs/
 run/
 data/history/
 data/board_history/
+data/token_usage.json
+token_usage.json

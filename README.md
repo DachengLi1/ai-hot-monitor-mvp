@@ -40,6 +40,10 @@ This copy ships with **demo sample data** under `data/` and excludes local runti
 - Anyscale Blog
 - Together AI Blog
 - Physical Intelligence Watch
+- Tencent Hunyuan Watch
+- Alibaba Qwen Watch
+- DeepSeek Watch
+- Kimi / Moonshot Watch
 
 ### 监管源
 - NIST News
@@ -58,6 +62,10 @@ This copy ships with **demo sample data** under `data/` and excludes local runti
 - Sam Altman Watch
 - Dario Amodei Watch
 - Mustafa Suleyman Watch
+- Saining Xie Watch
+- Fuli Luo Watch
+- Wenfeng Liang Watch
+- Shunyu Yao Watch
 
 ## 目录说明
 

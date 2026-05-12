@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import hashlib
 import json
+import os
 import re
 import time
 from collections import Counter, defaultdict
@@ -19,7 +20,7 @@ SOURCES_FILE = ROOT / "sources.json"
 
 USER_AGENT = "Mozilla/5.0 (compatible; AIHotMonitorMVP/1.1; +https://example.local)"
 FETCH_TIMEOUT = 25
-FETCH_INTERVAL_MINUTES = 30
+FETCH_INTERVAL_MINUTES = int(os.environ.get("FETCH_INTERVAL_MINUTES", "120"))
 
 TRACKED_COMPANIES = [
     "Datadog",
@@ -27,6 +28,10 @@ TRACKED_COMPANIES = [
     "Anyscale",
     "Together AI",
     "Physical Intelligence",
+    "Tencent Hunyuan",
+    "Alibaba Qwen",
+    "DeepSeek",
+    "Kimi",
 ]
 
 TRACKED_VOICES = [
@@ -38,6 +43,10 @@ TRACKED_VOICES = [
     "Sam Altman",
     "Dario Amodei",
     "Mustafa Suleyman",
+    "Saining Xie",
+    "Fuli Luo",
+    "Wenfeng Liang",
+    "Shunyu Yao",
 ]
 
 TRACKED_FOCUS_ALIASES = {
@@ -46,6 +55,10 @@ TRACKED_FOCUS_ALIASES = {
     "Anyscale": ["anyscale"],
     "Together AI": ["together ai", "together.ai"],
     "Physical Intelligence": ["physical intelligence", "physicalintelligence", "π0", "pi0"],
+    "Tencent Hunyuan": ["tencent hunyuan", "hunyuan", "腾讯混元"],
+    "Alibaba Qwen": ["alibaba qwen", "tongyi qianwen", "tongyi", "通义千问", "qwen alibaba"],
+    "DeepSeek": ["deepseek", "deep seek", "深度求索"],
+    "Kimi": ["kimi", "kimi ai", "moonshot ai", "moonshot", "月之暗面"],
     "Andrew Karpathy": ["andrew karpathy", "karpathy", "karparthy"],
     "Fei-Fei Li": ["fei-fei li", "li fei-fei"],
     "Yann LeCun": ["yann lecun"],
@@ -54,6 +67,10 @@ TRACKED_FOCUS_ALIASES = {
     "Sam Altman": ["sam altman"],
     "Dario Amodei": ["dario amodei"],
     "Mustafa Suleyman": ["mustafa suleyman"],
+    "Saining Xie": ["saining xie", "xie saining", "解赛宁"],
+    "Fuli Luo": ["fuli luo", "luo fuli", "罗福莉"],
+    "Wenfeng Liang": ["wenfeng liang", "liang wenfeng", "梁文锋"],
+    "Shunyu Yao": ["shunyu yao", "yao shunyu", "姚顺雨"],
 }
 
 KNOWN_ENTITY_ALIASES = {
@@ -65,6 +82,13 @@ KNOWN_ENTITY_ALIASES = {
     "xAI": ["xai"],
     "Mistral": ["mistral"],
     "Qwen": ["qwen"],
+    "Alibaba": ["alibaba", "alibaba cloud", "阿里", "阿里云"],
+    "Tencent": ["tencent", "腾讯"],
+    "Tencent Hunyuan": ["tencent hunyuan", "hunyuan", "腾讯混元"],
+    "Alibaba Qwen": ["alibaba qwen", "tongyi qianwen", "通义千问", "qwen alibaba"],
+    "DeepSeek": ["deepseek", "deep seek", "深度求索"],
+    "Moonshot AI": ["moonshot ai", "moonshot", "月之暗面"],
+    "Kimi": ["kimi", "kimi ai", "kimi k1", "kimi chat"],
     "Microsoft": ["microsoft"],
     "Amazon": ["amazon"],
     "NVIDIA": ["nvidia"],

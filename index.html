@@ -493,6 +493,116 @@
       background: rgba(255,255,255,0.88);
     }
 
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .token-card {
+      padding: 16px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 12px 30px rgba(114, 90, 63, 0.08);
+    }
+
+    .token-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .token-name {
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+
+    .token-status {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .token-status.ok { background: var(--green-soft); color: #2f7c57; border-color: #b9e6cf; }
+    .token-status.warn { background: var(--amber-soft); color: #a77013; border-color: #f3d59a; }
+    .token-status.missing { background: #f5f1ea; color: #8b7b67; }
+
+    .token-bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #f0e7da;
+      border: 1px solid #e3d4be;
+      margin: 10px 0 8px;
+    }
+
+    .token-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+    }
+
+    .token-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .token-action {
+      margin-top: 8px;
+      color: #7a4cb2;
+      font-size: 13px;
+      font-weight: 750;
+      line-height: 1.6;
+    }
+
+    .quota-card {
+      grid-column: 1 / -1;
+    }
+
+    .quota-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .quota-tile {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.76);
+    }
+
+    .quota-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .quota-value {
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .quota-time {
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
     .source-head {
       display: flex;
       justify-content: space-between;
@@ -520,7 +630,9 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
       .source-list,
-      .focus-grid {
+      .focus-grid,
+      .token-grid,
+      .quota-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
@@ -530,7 +642,9 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .source-list,
-      .focus-grid {
+      .focus-grid,
+      .token-grid,
+      .quota-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
@@ -538,7 +652,9 @@
     @media (max-width: 900px) {
       .stats-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .source-list,
-      .focus-grid { grid-template-columns: 1fr; }
+      .focus-grid,
+      .token-grid,
+      .quota-grid { grid-template-columns: 1fr; }
       .timeline {
         grid-template-columns: 1fr;
       }
@@ -567,6 +683,7 @@
       </div>
       <div class="history-row">
         <div class="history-label">Daily snapshots</div>
+        <button class="history-btn" id="todayBtn" type="button">回到今天</button>
         <div class="meta" id="historyChips" style="margin-top:0;"></div>
       </div>
       <div class="stats-strip">
@@ -587,6 +704,16 @@
           <div class="stat-value" id="multiSourceCount">-</div>
         </div>
       </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head" style="margin:0 0 6px;">
+        <div>
+          <h2 class="section-title">Codex usage limits</h2>
+          <div class="section-note" style="text-align:left; max-width:none;">只显示主人要看的四个信息：5h usage、weekly usage、5h refresh、weekly refresh。</div>
+        </div>
+      </div>
+      <div class="token-grid" id="tokenUsage"></div>
     </section>
 
     <section class="panel">
@@ -627,6 +754,22 @@
     const STORAGE_KEY = 'ai-hot-monitor-selected-date-v1';
     let selectedDate = localStorage.getItem(STORAGE_KEY) || getTodayISO();
     let historyDays = [];
+
+    function latestHistoryDate() {
+      return historyDays.length ? historyDays[0].date : null;
+    }
+
+    function hasHistoryDate(date) {
+      return !!historyDays.find(item => item.date === date);
+    }
+
+    function normalizeSelectedDate(date) {
+      const today = getTodayISO();
+      if (!date) return latestHistoryDate() || today;
+      if (date === today) return date;
+      if (hasHistoryDate(date)) return date;
+      return latestHistoryDate() || today;
+    }
 
     function getTodayISO() {
       const now = new Date();
@@ -680,6 +823,7 @@
       const el = document.getElementById('historyChips');
       if (!historyDays.length) {
         el.innerHTML = '<span class="pill">还没有 daily snapshot</span>';
+        renderTodayButton();
         return;
       }
       el.innerHTML = historyDays.slice(0, 14).map(item => {
@@ -687,6 +831,15 @@
         const label = `${item.date}${item.total_events != null ? ` · ${item.total_events} events` : ''}`;
         return `<button class="history-btn ${active}" data-date="${escapeHtml(item.date)}">${escapeHtml(label)}</button>`;
       }).join('');
+      renderTodayButton();
+    }
+
+    function renderTodayButton() {
+      const button = document.getElementById('todayBtn');
+      if (!button) return;
+      const isToday = selectedDate === getTodayISO();
+      button.classList.toggle('active', isToday);
+      button.textContent = isToday ? '今天 · live' : '回到今天';
     }
 
     function renderEvents(events) {
@@ -782,6 +935,102 @@
       `).join('');
     }
 
+    function fmtTokenCount(value) {
+      if (value == null || value === '') return '未接入';
+      const num = Number(value);
+      if (!Number.isFinite(num)) return String(value);
+      if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
+      if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
+      return String(Math.round(num));
+    }
+
+    function resetText(value) {
+      if (!value) return 'reset 未接入';
+      const target = new Date(value).getTime();
+      if (Number.isNaN(target)) return value;
+      const diffMs = target - Date.now();
+      if (diffMs <= 0) return '应该已 reset';
+      const hours = Math.floor(diffMs / 3_600_000);
+      const mins = Math.floor((diffMs % 3_600_000) / 60_000);
+      return `${hours}h ${mins}m 后 reset`;
+    }
+
+    function tokenStatus(sub) {
+      const primaryPct = Number(sub.primary_used_percent);
+      const secondaryPct = Number(sub.secondary_used_percent);
+      if (Number.isFinite(primaryPct) || Number.isFinite(secondaryPct)) {
+        const pct = Number.isFinite(primaryPct) ? primaryPct : secondaryPct;
+        if (pct >= 90) return { label: '窗口快吃满', cls: 'ok', pct, action: '很好，接近 reset 前不用强行 burn；可以等窗口恢复。' };
+        if (pct >= 70) return { label: '还可以再用', cls: 'warn', pct, action: '建议安排一轮中等任务，把剩余额度转成实验/代码资产。' };
+        return { label: '浪费风险', cls: 'warn', pct, action: '建议开并行任务：benchmark debug、paper/code review、实验脚本生成。' };
+      }
+      const used = Number(sub.used_tokens);
+      const limit = Number(sub.limit_tokens);
+      if (!Number.isFinite(used) || !Number.isFinite(limit) || limit <= 0) {
+        return { label: sub.login_status === 'logged in' ? '已登录/待用量' : '未接入 usage', cls: 'missing', pct: 0, action: sub.ccusage_note || '下一步：跑一次 Claude/Codex 任务，让本地 session 产生 usage 数据。' };
+      }
+      const pct = Math.max(0, Math.min(100, (used / limit) * 100));
+      if (pct >= 90) return { label: '基本吃满', cls: 'ok', pct, action: '很好，接近 reset 前不用强行 burn。' };
+      if (pct >= 70) return { label: '还可以再用', cls: 'warn', pct, action: '建议安排一轮中等任务，把剩余额度转成实验/代码资产。' };
+      return { label: '浪费风险', cls: 'warn', pct, action: '建议开并行任务：benchmark debug、paper/code review、实验脚本生成。' };
+    }
+
+    function quotaLines(sub) {
+      const lines = [];
+      if (sub.primary_used_percent != null) {
+        lines.push(`5h/Burst：${sub.primary_used_percent}% used · reset ${resetText(sub.primary_reset_at)}`);
+      }
+      if (sub.secondary_used_percent != null) {
+        lines.push(`Weekly：${sub.secondary_used_percent}% used · reset ${resetText(sub.secondary_reset_at)}`);
+      }
+      return lines;
+    }
+
+    async function loadTokenUsage() {
+      const el = document.getElementById('tokenUsage');
+      if (!el) return;
+      try {
+        const res = await fetch(`/api/token-usage?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('token usage unavailable');
+        const data = await res.json();
+        const subs = data.subscriptions || [];
+        const codex = subs.find(sub => sub.id === 'codex');
+        if (!codex) {
+          el.innerHTML = '<div class="empty">Codex usage 还没接上。</div>';
+          return;
+        }
+        const pct = value => value == null ? '-' : `${value}%`;
+        el.innerHTML = `
+          <article class="token-card quota-card">
+            <div class="token-head">
+              <div class="token-name">Codex</div>
+              <div class="token-meta">数据更新时间：${escapeHtml(fmtDate(data.updated_at))}</div>
+            </div>
+            <div class="quota-grid">
+              <div class="quota-tile">
+                <div class="quota-label">5h usage</div>
+                <div class="quota-value">${escapeHtml(pct(codex.primary_used_percent))}</div>
+              </div>
+              <div class="quota-tile">
+                <div class="quota-label">Weekly usage</div>
+                <div class="quota-value">${escapeHtml(pct(codex.secondary_used_percent))}</div>
+              </div>
+              <div class="quota-tile">
+                <div class="quota-label">5h refresh</div>
+                <div class="quota-value quota-time">${escapeHtml(fmtDate(codex.primary_reset_at))}</div>
+              </div>
+              <div class="quota-tile">
+                <div class="quota-label">Weekly refresh</div>
+                <div class="quota-value quota-time">${escapeHtml(fmtDate(codex.secondary_reset_at))}</div>
+              </div>
+            </div>
+          </article>
+        `;
+      } catch (error) {
+        el.innerHTML = '<div class="empty">token usage API 还没接上。</div>';
+      }
+    }
+
     function updateStats(stream, sources) {
       const orderedStream = sortByTimeDesc(stream);
       document.getElementById('eventCount').textContent = `事件数：${orderedStream.length}`;
@@ -798,40 +1047,63 @@
         if (!res.ok) throw new Error('history load failed');
         const data = await res.json();
         renderHistory(data.history || []);
+        selectedDate = normalizeSelectedDate(selectedDate);
       } catch {
         renderHistory([]);
+        selectedDate = normalizeSelectedDate(selectedDate);
       }
     }
 
-    async function loadDashboard(date = selectedDate) {
-      const isToday = date === getTodayISO();
+    async function loadDashboard(date = selectedDate, allowFallback = true) {
+      const normalizedDate = normalizeSelectedDate(date);
+      const isToday = normalizedDate === getTodayISO();
       const url = isToday
         ? `/api/dashboard?t=${Date.now()}`
-        : `/api/dashboard?date=${encodeURIComponent(date)}&t=${Date.now()}`;
+        : `/api/dashboard?date=${encodeURIComponent(normalizedDate)}&t=${Date.now()}`;
       try {
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) throw new Error('load failed');
         const data = await res.json();
         const stream = data.event_stream || data.top_events || [];
         const sources = data.source_status || [];
+        if (!stream.length && allowFallback) {
+          const fallbackDate = latestHistoryDate() || getTodayISO();
+          if (fallbackDate && fallbackDate !== normalizedDate) {
+            return loadDashboard(fallbackDate, false);
+          }
+        }
         document.getElementById('summary').textContent = data.summary || '暂无摘要';
         document.getElementById('generatedAt').textContent = `最近更新：${fmtDate(data.generated_at)}`;
         document.getElementById('nextFetchAt').textContent = isToday
           ? `下次抓取：${fmtDate(data.next_fetch_at)}`
           : '下次抓取：历史快照';
-        document.getElementById('viewingDate').textContent = `查看日期：${date}`;
+        document.getElementById('viewingDate').textContent = `查看日期：${normalizedDate}`;
         updateStats(stream, sources);
         renderTrackedFocus(data.tracked_focus || {});
         renderFocusWatch(data.focus_watch || []);
         renderEvents(stream);
         renderSources(sources);
-        selectedDate = date;
+        selectedDate = normalizedDate;
         localStorage.setItem(STORAGE_KEY, selectedDate);
         renderHistory(historyDays);
       } catch (error) {
-        document.getElementById('summary').textContent = `加载 ${date} 失败，请先运行抓取或稍后再试。`;
+        if (allowFallback) {
+          const fallbackDate = latestHistoryDate() || getTodayISO();
+          if (fallbackDate && fallbackDate !== normalizedDate) {
+            return loadDashboard(fallbackDate, false);
+          }
+        }
+        document.getElementById('summary').textContent = `加载 ${normalizedDate} 失败，请先运行抓取或稍后再试。`;
+        renderTrackedFocus({});
+        renderFocusWatch([]);
+        renderEvents([]);
+        renderSources([]);
       }
     }
+
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      loadDashboard(getTodayISO());
+    });
 
     document.getElementById('historyChips').addEventListener('click', event => {
       const button = event.target.closest('[data-date]');
@@ -841,7 +1113,10 @@
 
     async function refreshView() {
       await loadHistory();
-      await loadDashboard(selectedDate);
+      await Promise.all([
+        loadDashboard(selectedDate),
+        loadTokenUsage(),
+      ]);
     }
 
     refreshView();

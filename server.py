@@ -1,17 +1,35 @@
 #!/usr/bin/env python3
 import json
 import os
+import hmac
+from http import cookies
 from datetime import datetime
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 PORT = int(os.environ.get("PORT", "8890"))
+BIND_HOST = os.environ.get("BIND_HOST", "127.0.0.1")
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 BOARD_FILE = DATA_DIR / "board_state.json"
 BOARD_HISTORY_DIR = DATA_DIR / "board_history"
 HISTORY_DIR = DATA_DIR / "history"
+TOKEN_FILE = Path(os.environ.get("MONITOR_TOKEN_FILE", str(Path.home() / ".hermes" / "secrets" / "monitor_token")))
+COOKIE_NAME = "monitor_auth"
+
+
+def _load_token():
+    token = os.environ.get("MONITOR_TOKEN", "").strip()
+    if token:
+        return token
+    try:
+        return TOKEN_FILE.read_text(encoding="utf-8").strip()
+    except Exception:
+        return ""
+
+
+EXPECTED_TOKEN = _load_token()
 
 
 DEFAULT_BOARD = {
@@ -27,7 +45,43 @@ DEFAULT_BOARD = {
 
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
+        self._set_auth_cookie = False
         super().__init__(*args, directory=str(ROOT), **kwargs)
+
+    def _request_token(self, parsed=None):
+        auth = self.headers.get("Authorization", "")
+        if auth.lower().startswith("bearer "):
+            return auth.split(None, 1)[1].strip()
+        header_token = self.headers.get("X-Monitor-Token") or self.headers.get("X-Auth-Token")
+        if header_token:
+            return header_token.strip()
+        cookie_header = self.headers.get("Cookie", "")
+        if cookie_header:
+            jar = cookies.SimpleCookie()
+            try:
+                jar.load(cookie_header)
+                if COOKIE_NAME in jar:
+                    return jar[COOKIE_NAME].value.strip()
+            except Exception:
+                pass
+        if parsed is not None:
+            query_token = parse_qs(parsed.query).get("token", [""])[0].strip()
+            if query_token:
+                self._set_auth_cookie = True
+                return query_token
+        return ""
+
+    def _authorized(self, parsed=None):
+        if not EXPECTED_TOKEN:
+            return False
+        supplied = self._request_token(parsed)
+        return bool(supplied) and hmac.compare_digest(supplied, EXPECTED_TOKEN)
+
+    def _require_auth(self, parsed=None):
+        if self._authorized(parsed):
+            return True
+        self._json_response({"ok": False, "error": "Unauthorized"}, status=401)
+        return False
 
     def _json_response(self, payload, status=200):
         data = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
@@ -135,6 +189,8 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
+        if not self._require_auth(parsed):
+            return
         query = parse_qs(parsed.query)
         date = query.get("date", [None])[0]
         if parsed.path == "/api/dashboard":
@@ -153,6 +209,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._send_json_file(DATA_DIR / "items.json")
         if parsed.path == "/api/status":
             return self._send_json_file(DATA_DIR / "fetch_status.json")
+        if parsed.path == "/api/token-usage":
+            return self._send_json_file(DATA_DIR / "token_usage.json")
         if parsed.path == "/api/board":
             return self._json_response(self._read_board())
         if parsed.path == "/api/history":
@@ -163,6 +221,8 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
+        if not self._require_auth(parsed):
+            return
         if parsed.path != "/api/board":
             return self._json_response({"ok": False, "error": "Not found"}, status=404)
         try:
@@ -178,8 +238,9 @@ class Handler(SimpleHTTPRequestHandler):
         return self._json_response({"ok": True, "board": board})
 
     def end_headers(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        if self._set_auth_cookie and EXPECTED_TOKEN:
+            self.send_header("Set-Cookie", f"{COOKIE_NAME}={EXPECTED_TOKEN}; Path=/; HttpOnly; SameSite=Strict")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Auth-Token, X-Monitor-Token")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         super().end_headers()
 
@@ -190,6 +251,6 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    httpd = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
-    print(f"Serving AI Hot Monitor MVP at http://0.0.0.0:{PORT}/ from {ROOT}", flush=True)
+    httpd = ThreadingHTTPServer((BIND_HOST, PORT), Handler)
+    print(f"Serving AI Hot Monitor MVP at http://{BIND_HOST}:{PORT}/ from {ROOT}", flush=True)
     httpd.serve_forever()

@@ -1,9 +1,23 @@
 #!/usr/bin/env python3
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from fetch_sources import FETCH_INTERVAL_MINUTES, run_once
+
+ROOT = Path(__file__).resolve().parent
+
+
+def update_token_usage():
+    script = ROOT / "update_token_usage.py"
+    if not script.exists():
+        return
+    try:
+        subprocess.run([sys.executable, str(script)], cwd=str(ROOT), timeout=180, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as exc:
+        print(f"[loop] token usage update failed: {exc}", flush=True)
 
 
 def main():
@@ -12,6 +26,7 @@ def main():
         cycle_started = datetime.now()
         try:
             dashboard = run_once()
+            update_token_usage()
             print(
                 f"[loop] fetch complete @ {dashboard['generated_at']} | total_items={dashboard['stats']['total_items']} | sources_ok={dashboard['stats']['sources_ok']}/{dashboard['stats']['sources_total']}",
                 flush=True,
